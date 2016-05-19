@@ -7,7 +7,7 @@ Intended to flex those [golang] muscles!
 ## Installation
 If you have Go installed already, installing this is as simple as:
 
-`go install github.com/jmagrippis/next-task-time`
+`go get github.com/jmagrippis/next-task-time`
 
 If you don't have Go installed... Well, [it's never too late](https://golang.org/dl/)!
 
@@ -26,21 +26,27 @@ Standard input will then be expecting a few "cron-style" lines, like:
 * 19 /bin/run_me_sixty_times
 ```
 
-Press <kbd>Ctrl</kbd>+<kbd>D</kbd> to stop capturing input and get your results printed out!
+Press <kbd>Ctrl</kbd>+<kbd>D</kbd>, or just <kbd>enter</kbd> a few times to leave two empty lines, to stop capturing input and get your results printed out!
 
-[golang]: https://golang.org/ "Makes it easy to build simple, reliable, and efficient software."
-[GoConvey]: http://goconvey.co/ "Write behavioral tests in your editor. Get live results in your browser."
+You may also pipe a text file as input. Something like:
+
+```
+$GOPATH/bin/next-task-time 16:10 < sample-schedule.txt
+```
 
 ## Testing
 Run the test suite in "vanilla" mode with `go test` in the cloned project's folder.
 
 Run it in "cool cat" mode by installing [GoConvey] and running `$GOPATH/bin/goconvey`!
 
-## Missing features
+## Wishlist
+As mentioned previously, this is a pretty modest program, so most of the functionality has already been written.
+That said, there are a few things that might be worth looking at:
 
-Still in development, barely any code here! Main missing features:
+- Coloured output
+- Actually helpful help text
+- Extract testable method for getting the tasks
+- Separate library for some of the utility functions
 
-- Actually parse input in the HH:MM/H:MM format.
-- Actually capture input for the "cron-style" lines.
-- Support `--help` flag
-- Support `--version` flag
+[golang]: https://golang.org/ "Makes it easy to build simple, reliable, and efficient software."
+[GoConvey]: http://goconvey.co/ "Write behavioral tests in your editor. Get live results in your browser."

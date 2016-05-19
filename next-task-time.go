@@ -1,7 +1,11 @@
+// Command-line program next-task-time parses an argument for a simulated time
+// and expects a "cron-style" config as input. It returns where the given
+// configured tasks will run next
 package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"os"
 	"sort"
@@ -16,6 +20,14 @@ func main() {
 			os.Exit(1)
 		}
 	}()
+
+	version := flag.Bool("version", false, "whether to display the version information")
+	flag.Parse()
+
+	if (*version) {
+		fmt.Println("Next Scheduled Task Time version 0.1.0")
+		os.Exit(0)
+	}
 
 	args := os.Args
 	if len(args) < 2 {
