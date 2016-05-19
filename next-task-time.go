@@ -56,8 +56,8 @@ func main() {
 			panic(fmt.Sprint("Badly formatted string: ", input))
 		}
 
-		minutes := extractAcceptableIntegers(data[0], 23)
-		hours := extractAcceptableIntegers(data[1], 59)
+		minutes := extractAcceptableIntegers(data[0], 59)
+		hours := extractAcceptableIntegers(data[1], 23)
 
 		if len(data) > 3 {
 			data[2] = strings.Join(data[2:], " ")
