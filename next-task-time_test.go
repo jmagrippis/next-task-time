@@ -132,3 +132,53 @@ func TestExtractHourAndMinute(t *testing.T) {
 		})
 	})
 }
+
+func TestExtractAcceptableIntegers(t *testing.T) {
+	Convey("Given a string representation of an integer and an integer limit", t, func() {
+		valuesString := "12"
+		limit := 23
+
+		Convey("Returns a slice with only that single integer", func() {
+			So(extractAcceptableIntegers(valuesString, limit), ShouldResemble, []int{12})
+
+			valuesString = "1"
+			So(extractAcceptableIntegers(valuesString, limit), ShouldResemble, []int{1})
+		})
+	})
+
+	Convey("Given a string of comma separated integers and an integer limit", t, func() {
+		valuesString := "12,16,18"
+		limit := 23
+
+		Convey("Returns a slice with the comma separated integers", func() {
+			So(extractAcceptableIntegers(valuesString, limit), ShouldResemble, []int{12, 16, 18})
+
+			valuesString = "1,6,8,11,21,22,23,24"
+			So(extractAcceptableIntegers(valuesString, limit), ShouldResemble, []int{1, 6, 8, 11, 21, 22, 23, 24})
+		})
+	})
+
+	Convey("Given a string of comma separated integers in a random order and an integer limit", t, func() {
+		valuesString := "18,12,16"
+		limit := 23
+
+		Convey("Returns a sorted slice with the comma separated integers", func() {
+			So(extractAcceptableIntegers(valuesString, limit), ShouldResemble, []int{12, 16, 18})
+
+			valuesString = "11,21,22,1,23,24,8,6"
+			So(extractAcceptableIntegers(valuesString, limit), ShouldResemble, []int{1, 6, 8, 11, 21, 22, 23, 24})
+		})
+	})
+
+	Convey("Given a string \"*\" and an integer limit", t, func() {
+		valuesString := "*"
+		limit := 23
+
+		Convey("Returns a slice with the comma separated integers", func() {
+			So(extractAcceptableIntegers(valuesString, limit), ShouldResemble, []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23})
+
+			limit = 11
+			So(extractAcceptableIntegers(valuesString, limit), ShouldResemble, []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11})
+		})
+	})
+}

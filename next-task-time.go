@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -23,13 +24,27 @@ func main() {
 
 	simulatedHour, simulatedMinute := extractHourAndMinute(os.Args[1])
 
-	var tasks []string
+	var tasks []Task
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
-		tasks = append(tasks, scanner.Text())
+		input := scanner.Text()
+		data := strings.Split(input, " ")
+
+		if len(data) < 3 {
+			panic(fmt.Sprint("Badly formatted string: ", scanner.Text()))
+		}
+
+		hours := extractAcceptableIntegers(data[0], 23)
+		minutes := extractAcceptableIntegers(data[1], 59)
+
+		tasks = append(tasks, Task{hours: hours, minutes: minutes, script: data[2]})
 	}
 	if err := scanner.Err(); err != nil {
 		panic(fmt.Sprint("reading standard input: ", err))
+	}
+
+	for _, task := range tasks {
+		fmt.Print(task.Next(simulatedHour, simulatedMinute))
 	}
 
 	m, loopedMinute := findGreaterOrEqualInLooping(simulatedMinute, []int{20, 30, 40})
@@ -105,4 +120,38 @@ func extractHourAndMinute(formatted string) (int, int) {
 	}
 
 	return hour, minute
+}
+
+// extractAcceptableIntegers expects a comma separated integers in string form,
+// or "*", at which case it just fills the returned slice with incrementing
+// numbers up to the given limit
+func extractAcceptableIntegers(valuesString string, limit int) []int {
+	var acceptableInts []int
+	if valuesString == "*" {
+		for i := 0; i <= limit; i++ {
+			acceptableInts = append(acceptableInts, i)
+		}
+		return acceptableInts
+	}
+
+	valueStrings := strings.Split(valuesString, ",")
+	for _, valueString := range valueStrings {
+		value, err := strconv.Atoi(valueString)
+		if err != nil {
+			panic(fmt.Sprint("Badly formatted input: ", valuesString))
+		}
+		acceptableInts = append(acceptableInts, value)
+	}
+	sort.Ints(acceptableInts)
+	return acceptableInts
+}
+
+type Task struct {
+	hours []int
+	minutes []int
+	script string
+}
+
+func (t Task) Next(currentHour int, currentMinute int) string {
+	return fmt.Sprintf("%d:%2d %v - %v\n", currentHour, currentMinute, "today", t.script)
 }
