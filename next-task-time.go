@@ -25,42 +25,41 @@ func main() {
 	simulatedHour, simulatedMinute := extractHourAndMinute(os.Args[1])
 
 	var tasks []Task
+	readyToStop := false
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		input := scanner.Text()
+		if input == "" {
+			if readyToStop {
+				break
+			}
+			readyToStop = true
+			continue
+		} else {
+			readyToStop = false
+		}
 		data := strings.Split(input, " ")
 
 		if len(data) < 3 {
-			panic(fmt.Sprint("Badly formatted string: ", scanner.Text()))
+			panic(fmt.Sprint("Badly formatted string: ", input))
 		}
 
-		hours := extractAcceptableIntegers(data[0], 23)
-		minutes := extractAcceptableIntegers(data[1], 59)
+		minutes := extractAcceptableIntegers(data[0], 23)
+		hours := extractAcceptableIntegers(data[1], 59)
 
-		tasks = append(tasks, Task{hours: hours, minutes: minutes, script: data[2]})
+		if len(data) > 3 {
+			data[2] = strings.Join(data[2:], " ")
+		}
+
+		tasks = append(tasks, Task{hours: hours, minutes: minutes, action: data[2]})
 	}
 	if err := scanner.Err(); err != nil {
 		panic(fmt.Sprint("reading standard input: ", err))
 	}
 
 	for _, task := range tasks {
-		fmt.Print(task.Next(simulatedHour, simulatedMinute))
+		fmt.Println(task.Next(simulatedHour, simulatedMinute))
 	}
-
-	m, loopedMinute := findGreaterOrEqualInLooping(simulatedMinute, []int{20, 30, 40})
-	if loopedMinute {
-		simulatedHour++
-	}
-
-	h, loopedHour := findGreaterOrEqualInLooping(simulatedHour, []int{2, 3, 4})
-	var day string
-	if loopedHour {
-		day = "tomorrow"
-	} else {
-		day = "today"
-	}
-
-	fmt.Printf("%d:%2d %v -\n", h, m, day)
 }
 
 // findGreaterOrEqualInLooping calls findGreaterOrEqualIn with the given
@@ -146,12 +145,34 @@ func extractAcceptableIntegers(valuesString string, limit int) []int {
 	return acceptableInts
 }
 
+// A Task has a slice of hours it will occur, another one for minutes it will occur
+// and the action it will try to take when it does.
 type Task struct {
-	hours []int
+	hours   []int
 	minutes []int
-	script string
+	action  string
 }
 
+// Next returns the next time the Task will occur and whether that will be today or tomorrow,
+// according to the given parameters for the current hour and minute.
 func (t Task) Next(currentHour int, currentMinute int) string {
-	return fmt.Sprintf("%d:%2d %v - %v\n", currentHour, currentMinute, "today", t.script)
+	m, loopedMinute := findGreaterOrEqualInLooping(currentMinute, t.minutes)
+	if loopedMinute {
+		currentHour++
+		m = findGreaterOrEqualIn(0, t.minutes)
+	}
+
+	h, loopedHour := findGreaterOrEqualInLooping(currentHour, t.hours)
+	var day string
+	if loopedHour {
+		day = "tomorrow"
+	} else {
+		day = "today"
+	}
+
+	if h != currentHour {
+		m = findGreaterOrEqualIn(0, t.minutes)
+	}
+
+	return fmt.Sprintf("%d:%02d %v - %v", h, m, day, t.action)
 }
