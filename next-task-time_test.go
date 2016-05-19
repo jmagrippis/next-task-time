@@ -78,3 +78,57 @@ func TestFindGreaterOrEqualInLooping(t *testing.T) {
 		})
 	})
 }
+
+func TestExtractHourAndMinute(t *testing.T) {
+	Convey("Given a string in the format HH:MM", t, func() {
+		time := "12:32"
+
+		Convey("Returns an integer for the hour, and an integer for the minute", func() {
+			hour, minute := extractHourAndMinute(time)
+			So(hour, ShouldEqual, 12)
+			So(minute, ShouldEqual, 32)
+
+			time = "07:47"
+			hour, minute = extractHourAndMinute(time)
+			So(hour, ShouldEqual, 7)
+			So(minute, ShouldEqual, 47)
+		})
+	})
+
+	Convey("Given a string in the format H:MM", t, func() {
+		time := "2:32"
+
+		Convey("Returns an integer for the hour, and an integer for the minute", func() {
+			hour, minute := extractHourAndMinute(time)
+			So(hour, ShouldEqual, 2)
+			So(minute, ShouldEqual, 32)
+
+			time = "7:47"
+			hour, minute = extractHourAndMinute(time)
+			So(hour, ShouldEqual, 7)
+			So(minute, ShouldEqual, 47)
+
+			time = "7:47"
+			hour, minute = extractHourAndMinute(time)
+			So(hour, ShouldEqual, 7)
+			So(minute, ShouldEqual, 47)
+		})
+	})
+
+	Convey("Given a string in the format HH:MM, but with values out of range", t, func() {
+		time := "27:32"
+
+		Convey("Panics with a helpful message", func() {
+			So(func() { extractHourAndMinute(time) }, ShouldPanicWith, "Unfortunately, there are only 24 hours in a day! You passed 27.")
+
+			time = "17:70"
+			So(func() { extractHourAndMinute(time) }, ShouldPanicWith, "There are only 60 minutes in an hour! You passed 70.")
+
+			time = "-7:47"
+			So(func() { extractHourAndMinute(time) }, ShouldPanicWith, "Unfortunately, there are only 24 hours in a day! You passed -7.")
+
+			time = "05:-12"
+			So(func() { extractHourAndMinute(time) }, ShouldPanicWith, "There are only 60 minutes in an hour! You passed -12.")
+		})
+	})
+}
