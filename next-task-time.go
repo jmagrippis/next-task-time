@@ -24,7 +24,7 @@ func main() {
 	version := flag.Bool("version", false, "whether to display the version information")
 	flag.Parse()
 
-	if (*version) {
+	if *version {
 		fmt.Println("Next Scheduled Task Time version 0.1.0")
 		os.Exit(0)
 	}
@@ -155,36 +155,4 @@ func extractAcceptableIntegers(valuesString string, limit int) []int {
 	}
 	sort.Ints(acceptableInts)
 	return acceptableInts
-}
-
-// A Task has a slice of hours it will occur, another one for minutes it will occur
-// and the action it will try to take when it does.
-type Task struct {
-	hours   []int
-	minutes []int
-	action  string
-}
-
-// Next returns the next time the Task will occur and whether that will be today or tomorrow,
-// according to the given parameters for the current hour and minute.
-func (t Task) Next(currentHour int, currentMinute int) string {
-	m, loopedMinute := findGreaterOrEqualInLooping(currentMinute, t.minutes)
-	if loopedMinute {
-		currentHour++
-		m = findGreaterOrEqualIn(0, t.minutes)
-	}
-
-	h, loopedHour := findGreaterOrEqualInLooping(currentHour, t.hours)
-	var day string
-	if loopedHour {
-		day = "tomorrow"
-	} else {
-		day = "today"
-	}
-
-	if h != currentHour {
-		m = findGreaterOrEqualIn(0, t.minutes)
-	}
-
-	return fmt.Sprintf("%d:%02d %v - %v", h, m, day, t.action)
 }
